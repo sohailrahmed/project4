@@ -16,18 +16,15 @@ const ROOM_HEIGHT = 480;
 const ROOM_MARGIN_X = (canvas.width - ROOM_WIDTH) / 2;
 const ROOM_MARGIN_Y = (canvas.height - ROOM_HEIGHT) / 2;
 
-// Make pixel art crisper
-ctx.imageSmoothingEnabled = false;
-
 const PLAYER_SPEED = 2.4;
 const PLAYER_SIZE = 32;
 const PLAYER_MAX_HP = 10;
 
 // Hero sprite sheet for the player
 const heroImage = new Image();
-heroImage.src = "radiyya_original_sprite_sheet 32x32.png"; // must match file name exactly
+heroImage.src = "radiyya original sprite sheet 32x32.png"; // must match file name exactly
 
-// Your sheet: 7 columns x 3 rows (Down, Left, Right), 32x32 each
+// Sprite sheet layout: 7 columns x 3 rows (Down, Left, Right), 32x32 each
 const HERO_FRAME_WIDTH = 32;
 const HERO_FRAME_HEIGHT = 32;
 
@@ -719,7 +716,7 @@ function drawUIHints() {
   ctx.font = "14px sans-serif";
   ctx.textAlign = "left";
   ctx.fillText(
-    "Move: Arrow keys or WASD | Attack: Space | Switch weapon: S",
+    "Move: Arrow keys | Attack: Space | Switch weapon: S",
     ROOM_MARGIN_X + 12,
     ROOM_MARGIN_Y + ROOM_HEIGHT - 12
   );
