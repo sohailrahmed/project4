@@ -1,0 +1,12 @@
+{
+  "name": "four-room-topdown-game",
+  "version": "1.0.0",
+  "description": "Simple 4-room top-down browser game with fireball and sword combat.",
+  "scripts": {
+    "start": "npx serve ."
+  },
+  "devDependencies": {
+    "serve": "^14.2.1"
+  }
+}
+
