@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>4-Room Top-Down Game</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Cache-busting query string helps force browsers to fetch latest CSS -->
+  <link rel="stylesheet" href="style.css?v=1" />
+</head>
+<body>
+  <div class="hud">
+    <div class="hud-left">
+      <span id="player-health-label">Player HP:</span>
+      <span id="player-health-value">10</span>
+      <span id="weapon-label">Weapon:</span>
+      <span id="weapon-value">Fireball</span>
+    </div>
+    <div class="hud-right">
+      <span id="enemies-label">Enemies left:</span>
+      <span id="enemies-value">0</span>
+    </div>
+  </div>
+
+  <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+  <div id="message-overlay" class="overlay hidden">
+    <div id="message-text"></div>
+    <button id="restart-button">Restart</button>
+  </div>
+
+  <!-- Cache-busting query string helps force browsers to fetch latest JS -->
+  <script src="game.js?v=1"></script>
+</body>
+</html>
+
