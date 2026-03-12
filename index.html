@@ -4,7 +4,8 @@
   <meta charset="UTF-8" />
   <title>4-Room Top-Down Game</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="style.css" />
+  <!-- Cache-busting query string helps force browsers to fetch latest CSS -->
+  <link rel="stylesheet" href="style.css?v=1" />
 </head>
 <body>
   <div class="hud">
@@ -27,7 +28,8 @@
     <button id="restart-button">Restart</button>
   </div>
 
-  <script src="game.js"></script>
+  <!-- Cache-busting query string helps force browsers to fetch latest JS -->
+  <script src="game.js?v=1"></script>
 </body>
 </html>
 

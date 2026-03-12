@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Simple 4-room top-down browser game with fireball and sword combat.",
   "scripts": {
-    "start": "npx serve ."
+    "start": "npx serve . -c 0"
   },
   "devDependencies": {
     "serve": "^14.2.1"

@@ -26,10 +26,11 @@ const ENEMY_SPEED = 1.0;
 
 const FIREBALL_SPEED = 5;
 const FIREBALL_SIZE = 10;
-const FIREBALL_DAMAGE = 4;
-const SWORD_DAMAGE = 2;
-const SWORD_RANGE = 26;
-const SWORD_ARC = Math.PI / 3;
+// Damage values & sword geometry
+const FIREBALL_DAMAGE = 5; // each fireball hit
+const SWORD_DAMAGE = 10;   // each sword hit
+const SWORD_RANGE = PLAYER_SIZE; // sword length roughly equals player size
+const SWORD_ARC = Math.PI / 2;   // 180° total swing (±90° from facing)
 
 const WEAPON_FIREBALL = "fireball";
 const WEAPON_SWORD = "sword";
@@ -78,6 +79,7 @@ class Player extends Entity {
     this.facingAngle = 0; // radians
     this.currentRoom = 0;
     this.attackCooldown = 0;
+    this.swordSwingTimer = 0;
   }
 
   reset(x, y, roomId) {
@@ -88,6 +90,7 @@ class Player extends Entity {
     this.facingAngle = 0;
     this.currentRoom = roomId;
     this.attackCooldown = 0;
+    this.swordSwingTimer = 0;
   }
 }
 
@@ -304,6 +307,7 @@ function attemptAttack() {
   } else if (player.weapon === WEAPON_SWORD) {
     performSwordAttack();
     player.attackCooldown = 16;
+    player.swordSwingTimer = 12;
   }
 }
 
@@ -589,6 +593,20 @@ function drawPlayer() {
   ctx.beginPath();
   ctx.arc(ex, ey, eyeRadius, 0, Math.PI * 2);
   ctx.fill();
+
+  // sword arc (visual) when swinging
+  if (player.weapon === WEAPON_SWORD && player.swordSwingTimer > 0) {
+    const progress = player.swordSwingTimer / 12; // 0..1
+    const radius = player.half + SWORD_RANGE;
+    const startAngle = player.facingAngle - SWORD_ARC;
+    const endAngle = player.facingAngle + SWORD_ARC * (1 - progress * 0.4);
+
+    ctx.strokeStyle = "rgba(255,255,255,0.9)";
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.arc(player.x, player.y, radius, startAngle, endAngle);
+    ctx.stroke();
+  }
 }
 
 function drawEnemies() {
@@ -621,6 +639,7 @@ function gameLoop() {
 
   if (!isGameOver) {
     if (player.attackCooldown > 0) player.attackCooldown--;
+    if (player.swordSwingTimer > 0) player.swordSwingTimer--;
     updatePlayerMovement();
     updateEnemies();
     updateProjectiles();
