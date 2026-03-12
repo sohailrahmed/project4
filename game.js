@@ -31,6 +31,7 @@ const FIREBALL_DAMAGE = 5; // each fireball hit
 const SWORD_DAMAGE = 10;   // each sword hit
 const SWORD_RANGE = PLAYER_SIZE; // sword length roughly equals player size
 const SWORD_ARC = Math.PI / 2;   // 180° total swing (±90° from facing)
+const SWORD_SWING_DURATION = 12; // frames for full swing animation
 
 const WEAPON_FIREBALL = "fireball";
 const WEAPON_SWORD = "sword";
@@ -79,7 +80,7 @@ class Player extends Entity {
     this.facingAngle = 0; // radians
     this.currentRoom = 0;
     this.attackCooldown = 0;
-    this.swordSwingTimer = 0;
+    this.swordSwingTimer = 0; // counts down while sword is visually swinging
   }
 
   reset(x, y, roomId) {
@@ -307,7 +308,7 @@ function attemptAttack() {
   } else if (player.weapon === WEAPON_SWORD) {
     performSwordAttack();
     player.attackCooldown = 16;
-    player.swordSwingTimer = 12;
+    player.swordSwingTimer = SWORD_SWING_DURATION;
   }
 }
 
@@ -594,18 +595,31 @@ function drawPlayer() {
   ctx.arc(ex, ey, eyeRadius, 0, Math.PI * 2);
   ctx.fill();
 
-  // sword arc (visual) when swinging
+  // sword (visual) when swinging: long blade sweeping 180° in front of player
   if (player.weapon === WEAPON_SWORD && player.swordSwingTimer > 0) {
-    const progress = player.swordSwingTimer / 12; // 0..1
-    const radius = player.half + SWORD_RANGE;
-    const startAngle = player.facingAngle - SWORD_ARC;
-    const endAngle = player.facingAngle + SWORD_ARC * (1 - progress * 0.4);
+    const t = 1 - player.swordSwingTimer / SWORD_SWING_DURATION; // 0 → 1 over swing
+    const startAngle = player.facingAngle - SWORD_ARC; // start on one side
+    const endAngle = player.facingAngle + SWORD_ARC;   // end on the other side
+    const swingAngle = startAngle + (endAngle - startAngle) * t;
 
-    ctx.strokeStyle = "rgba(255,255,255,0.9)";
-    ctx.lineWidth = 5;
-    ctx.beginPath();
-    ctx.arc(player.x, player.y, radius, startAngle, endAngle);
-    ctx.stroke();
+    const bladeLength = SWORD_RANGE;
+    const bladeThickness = 6;
+
+    ctx.save();
+    ctx.translate(player.x, player.y);
+    ctx.rotate(swingAngle);
+
+    // Draw from just outside player body outward
+    const startOffset = player.half;
+    ctx.fillStyle = "rgba(255,255,255,0.95)";
+    ctx.fillRect(
+      startOffset,              // x (forward from player center)
+      -bladeThickness / 2,      // y (centered vertically)
+      bladeLength,              // width (length of sword)
+      bladeThickness            // height (thickness)
+    );
+
+    ctx.restore();
   }
 }
 
