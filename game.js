@@ -17,33 +17,8 @@ const ROOM_MARGIN_X = (canvas.width - ROOM_WIDTH) / 2;
 const ROOM_MARGIN_Y = (canvas.height - ROOM_HEIGHT) / 2;
 
 const PLAYER_SPEED = 2.4;
-const PLAYER_SIZE = 32;
+const PLAYER_SIZE = 24;
 const PLAYER_MAX_HP = 10;
-
-// Hero sprite sheet for the player
-const heroImage = new Image();
-heroImage.src = "radiyya original sprite sheet 32x32.png"; // must match file name exactly
-
-// Sprite sheet layout: 7 columns x 3 rows (Down, Left, Right), 32x32 each
-const HERO_FRAME_WIDTH = 32;
-const HERO_FRAME_HEIGHT = 32;
-
-// 7 frames per direction: [0]=idle, [1..3]=walk, [4..6]=attack
-const HERO_FRAMES_PER_DIRECTION = 7;
-
-// rows: 0 = DOWN, 1 = LEFT, 2 = RIGHT
-// no dedicated UP row, so reuse DOWN art for UP
-const HERO_DIRECTION_ROW = {
-  down: 0,
-  left: 1,
-  right: 2,
-  up: 0,
-};
-
-// indices for movement animation
-const HERO_IDLE_FRAME = 0;
-const HERO_WALK_START_FRAME = 1;
-const HERO_WALK_END_FRAME = 3;
 
 const ENEMY_SIZE = 24;
 const ENEMY_MAX_HP = 10;
@@ -106,9 +81,6 @@ class Player extends Entity {
     this.currentRoom = 0;
     this.attackCooldown = 0;
     this.swordSwingTimer = 0; // counts down while sword is visually swinging
-    this.direction = "down"; // for sprite: "up" | "down" | "left" | "right"
-    this.animFrame = 0;
-    this.animTimer = 0;
   }
 
   reset(x, y, roomId) {
@@ -120,9 +92,6 @@ class Player extends Entity {
     this.currentRoom = roomId;
     this.attackCooldown = 0;
     this.swordSwingTimer = 0;
-    this.direction = "down";
-    this.animFrame = 0;
-    this.animTimer = 0;
   }
 }
 
@@ -375,45 +344,11 @@ function updatePlayerMovement() {
   if (keys["arrowleft"]) moveX -= 1;
   if (keys["arrowright"]) moveX += 1;
 
-  let isMoving = false;
-
   if (moveX !== 0 || moveY !== 0) {
-    isMoving = true;
     const len = Math.hypot(moveX, moveY);
     moveX /= len;
     moveY /= len;
     player.facingAngle = Math.atan2(moveY, moveX);
-
-    // choose a cardinal direction for the sprite based on movement
-    if (Math.abs(moveX) > Math.abs(moveY)) {
-      player.direction = moveX > 0 ? "right" : "left";
-    } else {
-      player.direction = moveY > 0 ? "down" : "up";
-    }
-  }
-
-  // simple walk animation: use frames 1–3 for walking, frame 0 for idle
-  if (isMoving) {
-    player.animTimer++;
-    if (player.animTimer >= 8) {
-      player.animTimer = 0;
-
-      // if not already in the walk range, jump to first walk frame
-      if (
-        player.animFrame < HERO_WALK_START_FRAME ||
-        player.animFrame > HERO_WALK_END_FRAME
-      ) {
-        player.animFrame = HERO_WALK_START_FRAME;
-      } else {
-        player.animFrame++;
-        if (player.animFrame > HERO_WALK_END_FRAME) {
-          player.animFrame = HERO_WALK_START_FRAME;
-        }
-      }
-    }
-  } else {
-    player.animFrame = HERO_IDLE_FRAME;
-    player.animTimer = 0;
   }
 
   const speed = PLAYER_SPEED;
@@ -648,26 +583,17 @@ function drawObstacles() {
 }
 
 function drawPlayer() {
-  // draw hero sprite instead of a simple square
-  if (heroImage.complete && heroImage.naturalWidth > 0) {
-    const dirRow = HERO_DIRECTION_ROW[player.direction] ?? 0;
-    const frameIndex = player.animFrame % HERO_FRAMES_PER_DIRECTION;
+  // player body as a green square
+  player.draw();
 
-    const sx = frameIndex * HERO_FRAME_WIDTH;
-    const sy = dirRow * HERO_FRAME_HEIGHT;
-
-    ctx.drawImage(
-      heroImage,
-      sx, sy, HERO_FRAME_WIDTH, HERO_FRAME_HEIGHT,
-      player.x - player.half,
-      player.y - player.half,
-      PLAYER_SIZE,
-      PLAYER_SIZE
-    );
-  } else {
-    // fallback while image is loading
-    player.draw();
-  }
+  // facing indicator (small eye/mark in facing direction)
+  const eyeRadius = 4;
+  const ex = player.x + Math.cos(player.facingAngle) * (player.half + 4);
+  const ey = player.y + Math.sin(player.facingAngle) * (player.half + 4);
+  ctx.fillStyle = "#c8e6c9";
+  ctx.beginPath();
+  ctx.arc(ex, ey, eyeRadius, 0, Math.PI * 2);
+  ctx.fill();
 
   // sword (visual) when swinging: long blade sweeping 180° in front of player
   if (player.weapon === WEAPON_SWORD && player.swordSwingTimer > 0) {
